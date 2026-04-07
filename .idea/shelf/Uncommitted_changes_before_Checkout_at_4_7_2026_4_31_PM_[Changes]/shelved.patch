@@ -1,0 +1,73 @@
+Index: src/main/java/com/chude2/chude2/service/CustomerService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.chude2.chude2.service;\r\n\r\nimport com.chude2.chude2.entity.CustomerEntity;\r\nimport com.chude2.chude2.repository.CustomerRepository;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.stereotype.Service;\r\nimport org.springframework.transaction.annotation.Transactional;\r\n\r\nimport java.util.List;\r\n\r\n@Service\r\npublic class CustomerService {\r\n    @Autowired\r\n    private CustomerRepository customerRepository;\r\n    // lấy ds khách hàng có status = 1\r\n    public List<CustomerEntity> findAll(){\r\n        return customerRepository.findAllByStatus(1);\r\n    }\r\n\r\n    // lấy ds khách hàng có status = 0\r\n    public List<CustomerEntity> findAllRemovedCustomer(){\r\n        return customerRepository.findAllByStatus(0);\r\n    }\r\n    \r\n    public CustomerEntity findOneById(Long id){\r\n        return customerRepository.findById(id)\r\n                .orElseThrow(() -> new RuntimeException(\"User not found with id \" + id));\r\n    }\r\n\r\n    @Transactional\r\n    public CustomerEntity save(CustomerEntity customerEntity) {\r\n        return customerRepository.save(customerEntity);\r\n    }\r\n\r\n    //xóa mêm\r\n    @Transactional\r\n    public void deleteList(List<Long> ids){\r\n        //customerRepository.softDeleteByIds(ids);\r\n    }\r\n\r\n    //xóa cứng\r\n    @Transactional\r\n    public void deleteHistoryList(List<Long> ids){\r\n        customerRepository.deleteAllById(ids);\r\n    }\r\n\r\n    //khôi phục customer\r\n    @Transactional\r\n    public void recover(List<Long> ids) {\r\n        //customerRepository.recoverByIds(ids);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/chude2/chude2/service/CustomerService.java b/src/main/java/com/chude2/chude2/service/CustomerService.java
+--- a/src/main/java/com/chude2/chude2/service/CustomerService.java	(revision f7a64ff39787cfbacb7ec50a02a69efd0903794a)
++++ b/src/main/java/com/chude2/chude2/service/CustomerService.java	(date 1775552173047)
+@@ -32,11 +32,7 @@
+         return customerRepository.save(customerEntity);
+     }
+ 
+-    //xóa mêm
+-    @Transactional
+-    public void deleteList(List<Long> ids){
+-        //customerRepository.softDeleteByIds(ids);
+-    }
++
+ 
+     //xóa cứng
+     @Transactional
+@@ -44,9 +40,22 @@
+         customerRepository.deleteAllById(ids);
+     }
+ 
++
++    //xóa mêm
++    @Transactional
++    public void deleteList(List<Long> ids){
++        //customerRepository.softDeleteByIds(ids);
++        if(ids != null && !ids.isEmpty()) {
++            customerRepository.softDeleteByIds(ids);
++        }
++    }
++
+     //khôi phục customer
+     @Transactional
+     public void recover(List<Long> ids) {
+         //customerRepository.recoverByIds(ids);
++        if (ids != null && !ids.isEmpty()) {
++            customerRepository.recoverByIds(ids);
++        }
+     }
+ }
+Index: src/main/java/com/chude2/chude2/repository/CustomerRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.chude2.chude2.repository;\r\n\r\nimport com.chude2.chude2.entity.CustomerEntity;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\nimport org.springframework.stereotype.Repository;\r\n\r\nimport java.util.List;\r\n\r\n@Repository\r\npublic interface CustomerRepository extends JpaRepository<CustomerEntity, Long> {\r\n    List<CustomerEntity> findAllByStatus(int status);\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/chude2/chude2/repository/CustomerRepository.java b/src/main/java/com/chude2/chude2/repository/CustomerRepository.java
+--- a/src/main/java/com/chude2/chude2/repository/CustomerRepository.java	(revision f7a64ff39787cfbacb7ec50a02a69efd0903794a)
++++ b/src/main/java/com/chude2/chude2/repository/CustomerRepository.java	(date 1775552265451)
+@@ -2,11 +2,20 @@
+ 
+ import com.chude2.chude2.entity.CustomerEntity;
+ import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.data.jpa.repository.Modifying;
++import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.repository.query.Param;
+ import org.springframework.stereotype.Repository;
+ 
+ import java.util.List;
+ 
+ @Repository
+ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> {
++    @Modifying
++    @Query("UPDATE CustomerEntity c SET c.status = 0 WHERE c.id IN :ids")
++    void softDeleteByIds(@Param("ids") List<Long> ids);
++    @Modifying
++    @Query("UPDATE CustomerEntity c SET c.status = 1 WHERE c.id IN :ids")
++    void recoverByIds(@Param("ids") List<Long> ids);
+     List<CustomerEntity> findAllByStatus(int status);
+ }
