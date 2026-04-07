@@ -12,8 +12,14 @@ import java.util.List;
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
+    // lấy ds khách hàng có status = 1
     public List<CustomerEntity> findAll(){
-        return customerRepository.findAll();
+        return customerRepository.findAllByStatus(1);
+    }
+
+    // lấy ds khách hàng có status = 0
+    public List<CustomerEntity> findAllRemovedCustomer(){
+        return customerRepository.findAllByStatus(0);
     }
     
     public CustomerEntity findOneById(Long id){
@@ -26,8 +32,21 @@ public class CustomerService {
         return customerRepository.save(customerEntity);
     }
 
+    //xóa mêm
     @Transactional
     public void deleteList(List<Long> ids){
+        //customerRepository.softDeleteByIds(ids);
+    }
+
+    //xóa cứng
+    @Transactional
+    public void deleteHistoryList(List<Long> ids){
         customerRepository.deleteAllById(ids);
+    }
+
+    //khôi phục customer
+    @Transactional
+    public void recover(List<Long> ids) {
+        //customerRepository.recoverByIds(ids);
     }
 }

@@ -12,9 +12,17 @@ import java.util.List;
 public class CustomerAPI {
     @Autowired
     private CustomerService customerService;
+
+    //hiển thị khách hàng có status = 1
     @GetMapping(value= "/api/customer")
     public List<CustomerEntity> show(){
         return customerService.findAll();
+    }
+
+    //hiển thị khách hàng có status = 0
+    @GetMapping(value= "/api/customer/history")
+    public List<CustomerEntity> showHistoryCustomer(){
+        return customerService.findAllRemovedCustomer();
     }
 
     @GetMapping(value = "/api/customer/{id}")
@@ -33,8 +41,19 @@ public class CustomerAPI {
         return customerService.save(customerEntity);
     }
 
+    //xóa mềm
     @DeleteMapping(value = "/api/customer")
     public void deleteCustomer(@RequestBody List<Long> ids){
         customerService.deleteList(ids);
     }
+
+    //xóa cứng
+    @DeleteMapping(value = "/api/customer/history")
+    public void deleteHistoryCustomer(@RequestBody List<Long> ids){
+        customerService.deleteHistoryList(ids);
+    }
+
+    //khôi phục
+    @PostMapping(value = "/api/customer/history")
+    public void recoverCustomer(@RequestBody List<Long> ids) {customerService.recover(ids);}
 }
