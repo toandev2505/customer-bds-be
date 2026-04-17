@@ -36,6 +36,9 @@ public class CustomerService {
     @Transactional
     public void deleteList(List<Long> ids){
         //customerRepository.softDeleteByIds(ids);
+        if(ids != null && !ids.isEmpty()) {
+            customerRepository.softDeleteByIds(ids);
+        }
     }
 
     //xóa cứng
@@ -48,5 +51,8 @@ public class CustomerService {
     @Transactional
     public void recover(List<Long> ids) {
         //customerRepository.recoverByIds(ids);
+        if (ids != null && !ids.isEmpty()) {
+            customerRepository.recoverByIds(ids);
+        }
     }
 }
