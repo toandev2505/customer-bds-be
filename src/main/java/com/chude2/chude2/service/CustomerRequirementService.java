@@ -32,5 +32,10 @@ public class CustomerRequirementService {
     public void deleteList(List<Long> ids) {
         customerRequirementRepository.deleteAllById(ids);
     }
+
+    // Logic lấy danh sách nhu cầu của một khách hàng cụ thể
+    public List<CustomerRequirementEntity> findByCustomerId(Long customerId) {
+        return customerRequirementRepository.findByCustomerId(customerId);
+    }
 }
 
