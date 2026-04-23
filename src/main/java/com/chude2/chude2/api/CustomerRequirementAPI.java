@@ -34,4 +34,8 @@ public class CustomerRequirementAPI {
     public void deleteCustomerRequirementList(@RequestBody List<Long> ids){
         customerRequirementService.deleteList(ids);
     }
+    @GetMapping("/api/customer/requirement/{customerId}")
+    public List<CustomerRequirementEntity> getByCustomerId(@PathVariable Long customerId) {
+        return customerRequirementService.findByCustomerId(customerId);
+    }
 }
