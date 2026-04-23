@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController(value= "apiOfCustomer")
+@CrossOrigin(origins = "*")
 public class CustomerAPI {
     @Autowired
     private CustomerService customerService;
